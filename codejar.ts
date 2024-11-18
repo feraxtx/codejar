@@ -55,6 +55,7 @@ export function CodeJar(editor: HTMLElement, highlight: (e: HTMLElement, pos?: P
   let at = -1
   let focus = false
   let onUpdate: (code: string) => void | undefined = () => void 0
+  let afterHighlight: (editor: HTMLElement, pos?: Position) => void | undefined = () => void 0
   let prev: string // code content prior keydown event
 
   editor.setAttribute('contenteditable', 'plaintext-only')
@@ -76,6 +77,7 @@ export function CodeJar(editor: HTMLElement, highlight: (e: HTMLElement, pos?: P
     const pos = save()
     doHighlight(editor, pos)
     restore(pos)
+    afterHighlight(editor, save())
   }, 30)
 
   let recording = false
@@ -553,10 +555,14 @@ export function CodeJar(editor: HTMLElement, highlight: (e: HTMLElement, pos?: P
     updateCode(code: string, callOnUpdate: boolean = true) {
       editor.textContent = code
       doHighlight(editor)
+      afterHighlight(editor)
       callOnUpdate && onUpdate(code)
     },
     onUpdate(callback: (code: string) => void) {
       onUpdate = callback
+    },
+    afterHighlight(callback: (editor: HTMLElement, pos?: Position) => void){
+      afterHighlight = callback
     },
     toString,
     save,
